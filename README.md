@@ -1,6 +1,6 @@
 # KlonTUIke (Solitaire)
 
-KlonTUIke is a Klonduike (solitaire) to be played in a terminal.
+KlonTUIke is a Klondike (solitaire) to be played in a terminal.
 
 ## Compile
 
