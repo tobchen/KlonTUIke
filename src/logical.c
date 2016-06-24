@@ -35,11 +35,12 @@ struct klontuike_table {
 	/* Position of cursor and selection
 	 * For every one of the seven tableaus:
 	 * 0 - no selection
-	 * 0 + (i*20) - ground of plateau
+	 * 0 + (i*20) - ground of tableau
 	 * 1-19 + (i*20) - card from first (at the bottom) to last (on top)
 	 * 140 - reserved cards
 	 * 141 - currently open reserved card
-	 * 142-145 - foundations */
+	 * 142 - "nothing" spot between open reserved and first foundation
+	 * 143-146 - foundations */
 	uint8_t cursor;
 	uint8_t selection;
 };
@@ -128,28 +129,20 @@ void KlonTUIke_CursorUp(KlonTUIke_Table* table) {
 	uint8_t tabIndex;
 	uint8_t tabPos;
 
-	if (table->cursor < 140) { /* Tableau */
+	/* Tableau */
+	if (table->cursor < 140) {
 		tabIndex = table->cursor / 20;
 		tabPos = table->cursor % 20;
 
 		if (tabPos == 0
 				|| tabPos - 1 <= table->tableaus[tabIndex].firstVisible) {
-			if (tabIndex < 2) {
-				table->cursor = 140 + tabIndex;
-			} else if (tabIndex > 2) {
-				table->cursor = 139 + tabIndex;
-			} else {
-				table->cursor = 141;
-			}
+			table->cursor = 140 + tabIndex;
 		} else {
 			table->cursor = tabIndex * 20 + tabPos - 1;
 		}
-	} else if (table->cursor <= 145) { /* Reserve or foundation */
-		if (table->cursor <= 141) { /* (Open) reserve */
-			tabIndex = table->cursor - 140;
-		} else { /* Foundation */
-			tabIndex = table->cursor - 142 + 3;
-		}
+	/* Reserve or foundation */
+	} else {
+		tabIndex = table->cursor - 140;
 		table->cursor = tabIndex * 20 + table->tableaus[tabIndex].size;
 	}
 }
@@ -158,25 +151,19 @@ void KlonTUIke_CursorDown(KlonTUIke_Table* table) {
 	uint8_t tabIndex;
 	uint8_t tabPos;
 
-	if (table->cursor < 140) { /* Tableau */
+	/* Tableau */
+	if (table->cursor < 140) {
 		tabIndex = table->cursor / 20;
 		tabPos = table->cursor % 20;
 
 		if (tabPos > 0 && tabPos < table->tableaus[tabIndex].size) {
 			table->cursor = tabIndex * 20 + tabPos + 1;
-		} else if (tabIndex < 2) {
-			table->cursor = 140 + tabIndex;
-		} else if (tabIndex > 2) {
-			table->cursor = 139 + tabIndex;
 		} else {
-			table->cursor = 141;
+			table->cursor = 140 + tabIndex;
 		}
-	} else if (table->cursor <= 145) { /* Reserve or foundation */
-		if (table->cursor <= 141) { /* (Open) reserve */
-			tabIndex = table->cursor - 140;
-		} else { /* Foundation */
-			tabIndex = table->cursor - 142 + 3;
-		}
+	/* Reserve or foundation */
+	} else {
+		tabIndex = table->cursor - 140;
 		if (table->tableaus[tabIndex].size > 0) {
 			table->cursor = tabIndex * 20
 					+ (table->tableaus[tabIndex].firstVisible + 1);
@@ -199,7 +186,9 @@ void KlonTUIke_CursorLeft(KlonTUIke_Table* table) {
 	} else if (table->cursor >= 140) { /* Reserved or foundation */
 		table->cursor--;
 		if (table->cursor < 140) {
-			table->cursor = 145;
+			table->cursor = 146;
+		} else if (table->cursor == 142) {
+			table->cursor = 141;
 		}
 	}
 }
@@ -216,8 +205,10 @@ void KlonTUIke_CursorRight(KlonTUIke_Table* table) {
 		setCursorToTableau(table, nextTabIndex);
 	} else if (table->cursor >= 140) { /* Reserved or foundation */
 		table->cursor++;
-		if (table->cursor > 145) {
+		if (table->cursor > 146) {
 			table->cursor = 140;
+		} else if (table->cursor == 142) {
+			table->cursor = 143;
 		}
 	}
 }
@@ -230,7 +221,8 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 	if (table->selection > 0) { /* Card is selected */
 		/* Cursor may not be on selection */
 		if (table->selection != table->cursor) {
-			if (table->cursor < 140) { /* Tableau */
+			/* Tableau */
+			if (table->cursor < 140) {
 
 				tabIndex = table->cursor / 20;
 				/* Tableau */
@@ -253,8 +245,8 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 							table->reserve.cards + table->reserve.current, 1);
 					removeFromReserve(table);
 				/* Foundation */
-				} else if (table->selection >= 142 && table->selection <= 145) {
-					founIndex = table->selection - 142;
+				} else if (table->selection >= 143 && table->selection <= 146) {
+					founIndex = table->selection - 143;
 					if (mayBeOnTableau(table, tabIndex,
 							table->foundations[founIndex])) {
 						placeOnTableau(table, tabIndex,
@@ -263,10 +255,12 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 					}
 				}
 
-			} else if (table->cursor >= 142 && table->cursor <= 145) { /* F */
+			/* Foundation */
+			} else if (table->cursor >= 143 && table->cursor <= 146) {
 
-				founIndex = table->cursor - 142;
-				if (table->selection < 140) { /* Tableau */
+				founIndex = table->cursor - 143;
+				/* Tableau */
+				if (table->selection < 140) {
 					tabIndex = table->selection / 20;
 					tabPos = table->selection % 20 - 1;
 					if (table->tableaus[tabIndex].size - 1 == tabPos
@@ -284,8 +278,8 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 							table->reserve.cards[table->reserve.current];
 					removeFromReserve(table);
 				/* Foundation */
-				} else if (table->selection >= 142 && table->selection <= 145) {
-					founIndexFrom = table->selection - 142;
+				} else if (table->selection >= 143 && table->selection <= 146) {
+					founIndexFrom = table->selection - 143;
 					if (mayBeOnFoundation(table, founIndex,
 								table->foundations[founIndexFrom])) {
 						table->foundations[founIndex] =
@@ -311,8 +305,8 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 			if (table->reserve.current < table->reserve.size) {
 				table->selection = 141;
 			}
-		} else if (table->cursor >= 142 && table->cursor <= 145) { /* F */
-			if (table->foundations[table->cursor-142] < 52) {
+		} else if (table->cursor >= 143 && table->cursor <= 146) { /* F */
+			if (table->foundations[table->cursor-143] < 52) {
 				table->selection = table->cursor;
 			}
 		}
@@ -407,9 +401,11 @@ static void removeFromFoundation(KlonTUIke_Table* table, uint8_t index) {
 	if (table->foundations[index] >= 52) {
 		return;
 	}
-	if (table->foundations[index] % 13 == 0) { /* Remove ace */
+	/* Remove ace */
+	if (table->foundations[index] % 13 == 0) {
 		table->foundations[index] = 52;
-	} else { /* Remove 2 or bigger */
+	/* Remove 2 or bigger */
+	} else {
 		table->foundations[index]--;
 	}
 }

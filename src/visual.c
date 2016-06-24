@@ -141,28 +141,27 @@ void KlonTUIke_DrawTable(KlonTUIke_Table* table) {
 		/* Open Reserved */
 		} else if (position == 141) {
 			drawCard(0, 4, KlonTUIke_GetOpenReserve(table), true);
-		} else if (position <= 145) { /* Foundation */
-			i = position - 142;
+		/* Foundation */
+		} else if (position >= 143 && position <= 146) {
+			i = position - 143;
 			drawCard(0, 12 + i * 4, KlonTUIke_GetFoundation(table, i), true);
 		}
 	}
 
 	/* Cursor */
 	position = KlonTUIke_GetCursor(table);
-	if (position < 140) { /* Tableau */
+	/* Tableau */
+	if (position < 140) {
 		i = position / 20;
 		j = position % 20;
-		if (j == 0) { /* Empty */
+		if (j == 0) {
 			wmove(window, 2, i * 4);
-		} else { /* Non-empty */
+		} else {
 			wmove(window, 2 + j - 1, i * 4);
 		}
-	} else if (position == 140) { /* Reserved */
-		wmove(window, 0, 0);
-	} else if (position == 141) { /* Open Reserved */
-		wmove(window, 0, 4);
-	} else if (position <= 145) { /* Foundation */
-		wmove(window, 0, 12 + (position - 142) * 4);
+	/* Reserved, "nothing" or foundation */
+	} else {
+		wmove(window, 0, (position - 140) * 4);
 	}
 
 	curs_set(2);
