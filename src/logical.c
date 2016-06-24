@@ -83,6 +83,10 @@ void KlonTUIke_ResetupTable(KlonTUIke_Table* table) {
 	uint8_t random;
 	uint8_t currentCard;
 
+	if (NULL == table) {
+		return;
+	}
+
 	/* Shuffle deck */
 	for (i = 0; i < 52; i++) {
 		deck[i] = i;
@@ -129,6 +133,10 @@ void KlonTUIke_CursorUp(KlonTUIke_Table* table) {
 	uint8_t tabIndex;
 	uint8_t tabPos;
 
+	if (NULL == table) {
+		return;
+	}
+
 	/* Tableau */
 	if (table->cursor < 140) {
 		tabIndex = table->cursor / 20;
@@ -150,6 +158,10 @@ void KlonTUIke_CursorUp(KlonTUIke_Table* table) {
 void KlonTUIke_CursorDown(KlonTUIke_Table* table) {
 	uint8_t tabIndex;
 	uint8_t tabPos;
+
+	if (NULL == table) {
+		return;
+	}
 
 	/* Tableau */
 	if (table->cursor < 140) {
@@ -176,6 +188,10 @@ void KlonTUIke_CursorDown(KlonTUIke_Table* table) {
 void KlonTUIke_CursorLeft(KlonTUIke_Table* table) {
 	uint8_t curTabIndex, nextTabIndex;
 
+	if (NULL == table) {
+		return;
+	}
+
 	if (table->cursor < 140) { /* Tableau */
 		curTabIndex = table->cursor / 20;
 		nextTabIndex = curTabIndex - 1;
@@ -195,6 +211,10 @@ void KlonTUIke_CursorLeft(KlonTUIke_Table* table) {
 
 void KlonTUIke_CursorRight(KlonTUIke_Table* table) {
 	uint8_t curTabIndex, nextTabIndex;
+
+	if (NULL == table) {
+		return;
+	}
 
 	if (table->cursor < 140) { /* Tableau */
 		curTabIndex = table->cursor / 20;
@@ -217,6 +237,10 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 	uint8_t tabIndex, tabIndexFrom;
 	uint8_t tabPos, tabPosFrom;
 	uint8_t founIndex, founIndexFrom;
+
+	if (NULL == table) {
+		return;
+	}
 
 	if (table->selection > 0) { /* Card is selected */
 		/* Cursor may not be on selection */
@@ -315,7 +339,35 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 }
 
 void KlonTUIke_CancelSelection(KlonTUIke_Table* table) {
-	table->selection = 0;
+	if (table != NULL) {
+		table->selection = 0;
+	}
+}
+
+bool KlonTUIke_SetCursor(KlonTUIke_Table* table, uint8_t cursor) {
+	uint8_t tabPos;
+	Tableau* tableau;
+
+	if (NULL == table) {
+		return false;
+	}
+
+	if (cursor < 140) {
+		tableau = table->tableaus + (cursor / 20);
+		tabPos = cursor % 20;
+		if (tabPos <= tableau->size
+				&& (tableau->size == 0 || tabPos - 1 >= tableau->firstVisible)) {
+			table->cursor = cursor;
+		}
+	} else if (cursor >= 140 && cursor <= 146 && cursor != 142) {
+		table->cursor = cursor;
+	}
+
+	if (table->cursor == cursor) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 uint8_t KlonTUIke_GetFoundation(KlonTUIke_Table* table, uint8_t index) {
@@ -355,10 +407,16 @@ bool KlonTUIke_IsReserveLeft(KlonTUIke_Table* table) {
 }
 
 uint8_t KlonTUIke_GetCursor(KlonTUIke_Table* table) {
+	if (NULL == table) {
+		return 0;
+	}
 	return table->cursor;
 }
 
 uint8_t KlonTUIke_GetSelection(KlonTUIke_Table* table) {
+	if (NULL == table) {
+		return 0;
+	}
 	return table->selection;
 }
 
@@ -373,6 +431,9 @@ void KlonTUIke_GetCardInfo(uint8_t card, uint8_t* suit, uint8_t* numeral) {
 
 bool KlonTUIke_HasWon(KlonTUIke_Table* table) {
 	uint8_t i;
+	if (NULL == table) {
+		return false;
+	}
 	for (i = 0; i < 4; i++) {
 		if (table->foundations[i] >= 52 || table->foundations[i] % 13 != 12) {
 			return false;
@@ -383,6 +444,10 @@ bool KlonTUIke_HasWon(KlonTUIke_Table* table) {
 
 static void setCursorToTableau(KlonTUIke_Table* table, uint8_t nextTabIndex) {
 	uint8_t nextTabPos;
+
+	if (NULL == table) {
+		return;
+	}
 
 	if (table->tableaus[nextTabIndex].size > 0) {
 		nextTabPos = table->cursor % 20;
@@ -399,7 +464,7 @@ static void setCursorToTableau(KlonTUIke_Table* table, uint8_t nextTabIndex) {
 }
 
 static void removeFromFoundation(KlonTUIke_Table* table, uint8_t index) {
-	if (table->foundations[index] >= 52) {
+	if (NULL == table || table->foundations[index] >= 52) {
 		return;
 	}
 	/* Remove ace */
@@ -412,7 +477,7 @@ static void removeFromFoundation(KlonTUIke_Table* table, uint8_t index) {
 }
 
 static void removeFromReserve(KlonTUIke_Table* table) {
-	if (table->reserve.current >= table->reserve.size) {
+	if (NULL == table || table->reserve.current >= table->reserve.size) {
 		return;
 	}
 	memmove(table->reserve.cards + table->reserve.current,
@@ -427,7 +492,7 @@ static void removeFromReserve(KlonTUIke_Table* table) {
 
 static void removeFromTableau(KlonTUIke_Table* table, uint8_t index,
 		uint8_t first) {
-	if (table->tableaus[index].size == 0
+	if (NULL == table || table->tableaus[index].size == 0
 			|| first < table->tableaus[index].firstVisible
 			|| first >= table->tableaus[index].size) {
 		return;
@@ -441,6 +506,9 @@ static void removeFromTableau(KlonTUIke_Table* table, uint8_t index,
 
 static void placeOnTableau(KlonTUIke_Table* table, uint8_t index,
 		uint8_t* cards, uint8_t length) {
+	if (NULL == table || (NULL == cards && length > 0)) {
+		return;
+	}
 	memcpy(table->tableaus[index].cards + table->tableaus[index].size,
 			cards, length * sizeof(uint8_t));
 	if (table->tableaus[index].size == 0) {
@@ -455,6 +523,10 @@ static bool mayBeOnFoundation(KlonTUIke_Table* table, uint8_t index,
 	uint8_t foundSuit, foundNumeral;
 	uint8_t cardSuit, cardNumeral;
 
+	if (NULL == table) {
+		return false;
+	}
+
 	/* Will store garbage if foundation's empty */
 	KlonTUIke_GetCardInfo(table->foundations[index], &foundSuit, &foundNumeral);
 	KlonTUIke_GetCardInfo(card, &cardSuit, &cardNumeral);
@@ -465,6 +537,10 @@ static bool mayBeOnFoundation(KlonTUIke_Table* table, uint8_t index,
 static bool mayBeOnTableau(KlonTUIke_Table* table, uint8_t index, uint8_t card) {
 	uint8_t tabSuit, tabNumeral;
 	uint8_t cardSuit, cardNumeral;
+
+	if (NULL == table) {
+		return false;
+	}
 
 	KlonTUIke_GetCardInfo(card, &cardSuit, &cardNumeral);
 	if (table->tableaus[index].size == 0) {

@@ -9,12 +9,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <locale.h>
 
 #ifndef KLONTUIKE_UNICODE
 	#include <ncurses.h>
 #else
 	#include <ncursesw/ncurses.h>
-	#include <locale.h>
 #endif
 
 #include "logical.h"
@@ -30,9 +30,8 @@ int main(void) {
 	int input;
 	time_t start, end;
 
-	#ifdef KLONTUIKE_UNICODE
-		setlocale(LC_ALL, "");
-	#endif
+	/* ncurses man said to set the locale so why not? */
+	setlocale(LC_ALL, "");
 
 	/* Just some randomness */
 	srand(time(NULL));

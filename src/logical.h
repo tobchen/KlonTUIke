@@ -28,6 +28,8 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table);
 
 void KlonTUIke_CancelSelection(KlonTUIke_Table* table);
 
+bool KlonTUIke_SetCursor(KlonTUIke_Table* table, uint8_t cursor);
+
 uint8_t KlonTUIke_GetFoundation(KlonTUIke_Table* table, uint8_t index);
 uint8_t KlonTUIke_GetTableau(KlonTUIke_Table* table, uint8_t index,
 		uint8_t position);
