@@ -26,7 +26,7 @@
 static WINDOW* window;
 
 static void drawCard(int y, int x, uint8_t card, bool selected);
-static void drawBack(int y, int x, uint8_t count);
+static void drawBack(int y, int x);
 static void drawEmpty(int y, int x);
 
 int KlonTUIke_InitVisual() {
@@ -75,9 +75,8 @@ void KlonTUIke_QuitVisual() {
 
 void KlonTUIke_DrawTable(KlonTUIke_Table* table) {
 	uint8_t i, j;
-	uint8_t size, firstVisible;
+	uint8_t card;
 	uint8_t position;
-	KlonTUIke_Stack* stack;
 	#ifdef KLONTUIKE_DEBUG
 		char cursorPos[8];
 	#endif
@@ -85,23 +84,15 @@ void KlonTUIke_DrawTable(KlonTUIke_Table* table) {
 	wclear(window);
 
 	/* Reserve */
-	stack = KlonTUIke_GetReserve(table);
-	size = KlonTUIke_GetSize(stack);
-	firstVisible = KlonTUIke_GetFirstVisible(stack);
-	if (size > 0) { /* Non-empty */
-		if (firstVisible >= size) {
-			drawBack(0, 0, 1);
-			drawEmpty(0, 4);
-		} else {
-			if (firstVisible == size - 1) {
-				drawEmpty(0, 0);
-			} else {
-				drawBack(0, 0, 1);
-			}
-			drawCard(0, 4, KlonTUIke_GetCard(stack, firstVisible), false);
-		}
-	} else { /* Empty */
+	if (KlonTUIke_IsReserveLeft(table)) {
+		drawBack(0, 0);
+	} else {
 		drawEmpty(0, 0);
+	}
+	card = KlonTUIke_GetOpenReserve(table);
+	if (card < 52) {
+		drawCard(0, 4, card, false);
+	} else {
 		drawEmpty(0, 4);
 	}
 
@@ -117,17 +108,17 @@ void KlonTUIke_DrawTable(KlonTUIke_Table* table) {
 
 	/* Tableaus */
 	for (i = 0; i < 7; i++) {
-		stack = KlonTUIke_GetTableau(table, i);
-		size = KlonTUIke_GetSize(stack);
-		if (size > 0) { /* Non-Empty */
-			firstVisible = KlonTUIke_GetFirstVisible(stack);
-			/* Downcards */
-			drawBack(2, i * 4, firstVisible);
-			/* Upcards */
-			for (j = firstVisible; j < size; j++) {
-				drawCard(2 + j, i * 4, KlonTUIke_GetCard(stack, j), false);
+		for (j = 0;; j++) {
+			card = KlonTUIke_GetTableau(table, i, j);
+			if (card == 52) {
+				break;
+			} else if (card == 53) {
+				drawBack(2 + j, i * 4);
+			} else {
+				drawCard(2 + j, i * 4, card, false);
 			}
-		} else { /* Empty */
+		}
+		if (j == 0) {
 			drawEmpty(2, i * 4);
 		}
 	}
@@ -142,16 +133,14 @@ void KlonTUIke_DrawTable(KlonTUIke_Table* table) {
 	/* Selection */
 	position = KlonTUIke_GetSelection(table);
 	if (position > 0) {
-		if (position < 140) { /* Tableau */
+		/* Tableau */
+		if (position < 140) {
 			i = position / 20;
 			j = position % 20 - 1;
-			drawCard(2 + j, i * 4,
-					KlonTUIke_GetCard(KlonTUIke_GetTableau(table, i), j), true);
-		} else if (position == 141) { /* Open Reserved */
-			stack = KlonTUIke_GetReserve(table);
-			drawCard(0, 4,
-					KlonTUIke_GetCard(stack, KlonTUIke_GetFirstVisible(stack)),
-					true);
+			drawCard(2 + j, i * 4, KlonTUIke_GetTableau(table, i, j), true);
+		/* Open Reserved */
+		} else if (position == 141) {
+			drawCard(0, 4, KlonTUIke_GetOpenReserve(table), true);
 		} else if (position <= 145) { /* Foundation */
 			i = position - 142;
 			drawCard(0, 12 + i * 4, KlonTUIke_GetFoundation(table, i), true);
@@ -334,11 +323,9 @@ static void drawCard(int y, int x, uint8_t card, bool selected) {
 }
 #endif
 
-static void drawBack(int y, int x, uint8_t count) {
+static void drawBack(int y, int x) {
 	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_BACK));
-	for (; count > 0; count--) {
-		mvwaddnstr(window, y + count - 1, x, "   ", 3);
-	}
+	mvwaddnstr(window, y, x, "   ", 3);
 }
 
 static void drawEmpty(int y, int x) {

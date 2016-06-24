@@ -11,16 +11,22 @@
 #include <string.h>
 #include <stdio.h>
 
-struct klontuike_stack {
-	uint8_t cards[24];
+typedef struct tableau {
+	uint8_t cards[19];
 	uint8_t size;
 	uint8_t firstVisible;
-};
+} Tableau;
+
+typedef struct reserve {
+	uint8_t cards[24];
+	uint8_t size;
+	uint8_t current;
+} Reserve;
 
 struct klontuike_table {
 	/* Staples */
-	KlonTUIke_Stack tableaus[7];
-	KlonTUIke_Stack reserve;
+	Tableau tableaus[7];
+	Reserve reserve;
 
 	/* Foundation
 	 * Card >= 52 - empty foundation */
@@ -111,7 +117,7 @@ void KlonTUIke_ResetupTable(KlonTUIke_Table* table) {
 		currentCard++;
 	}
 	table->reserve.size = 24;
-	table->reserve.firstVisible = 24;
+	table->reserve.current = 24;
 
 	/* Position/selection */
 	table->cursor = 140;
@@ -242,9 +248,9 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 				/* Open reserved */
 				} else if (table->selection == 141
 						&& mayBeOnTableau(table, tabIndex,
-								table->reserve.cards[table->reserve.firstVisible])) {
+								table->reserve.cards[table->reserve.current])) {
 					placeOnTableau(table, tabIndex,
-							table->reserve.cards + table->reserve.firstVisible, 1);
+							table->reserve.cards + table->reserve.current, 1);
 					removeFromReserve(table);
 				/* Foundation */
 				} else if (table->selection >= 142 && table->selection <= 145) {
@@ -273,9 +279,9 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 				/* Open reserved */
 				} else if (table->selection == 141
 						&& mayBeOnFoundation(table, founIndex,
-								table->reserve.cards[table->reserve.firstVisible])) {
+								table->reserve.cards[table->reserve.current])) {
 					table->foundations[founIndex] =
-							table->reserve.cards[table->reserve.firstVisible];
+							table->reserve.cards[table->reserve.current];
 					removeFromReserve(table);
 				/* Foundation */
 				} else if (table->selection >= 142 && table->selection <= 145) {
@@ -297,12 +303,12 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 				table->selection = table->cursor;
 			}
 		} else if (table->cursor == 140) { /* Reserved */
-			table->reserve.firstVisible++;
-			if (table->reserve.firstVisible > table->reserve.size) {
-				table->reserve.firstVisible = 0;
+			table->reserve.current++;
+			if (table->reserve.current > table->reserve.size) {
+				table->reserve.current = 0;
 			}
 		} else if (table->cursor == 141) { /* Open reserved */
-			if (table->reserve.firstVisible < table->reserve.size) {
+			if (table->reserve.current < table->reserve.size) {
 				table->selection = 141;
 			}
 		} else if (table->cursor >= 142 && table->cursor <= 145) { /* F */
@@ -317,28 +323,40 @@ void KlonTUIke_CancelSelection(KlonTUIke_Table* table) {
 	table->selection = 0;
 }
 
-KlonTUIke_Stack* KlonTUIke_GetTableau(KlonTUIke_Table* table, uint8_t index) {
-	return &(table->tableaus[index]);
-}
-
-KlonTUIke_Stack* KlonTUIke_GetReserve(KlonTUIke_Table* table) {
-	return &(table->reserve);
-}
-
 uint8_t KlonTUIke_GetFoundation(KlonTUIke_Table* table, uint8_t index) {
-	return table->foundations[index];
+	if (NULL == table) {
+		return 52;
+	} else {
+		return table->foundations[index];
+	}
 }
 
-uint8_t KlonTUIke_GetCard(KlonTUIke_Stack* stack, uint8_t index) {
-	return stack->cards[index];
+uint8_t KlonTUIke_GetTableau(KlonTUIke_Table* table, uint8_t index,
+		uint8_t position) {
+	if (NULL == table || index >= 7 || position >= table->tableaus[index].size) {
+		return 52;
+	} else if (position < table->tableaus[index].firstVisible) {
+		return 53;
+	} else {
+		return table->tableaus[index].cards[position];
+	}
 }
 
-uint8_t KlonTUIke_GetSize(KlonTUIke_Stack* stack) {
-	return stack->size;
+uint8_t KlonTUIke_GetOpenReserve(KlonTUIke_Table* table) {
+	if (NULL == table || table->reserve.current >= table->reserve.size) {
+		return 52;
+	} else {
+		return table->reserve.cards[table->reserve.current];
+	}
 }
 
-uint8_t KlonTUIke_GetFirstVisible(KlonTUIke_Stack* stack) {
-	return stack->firstVisible;
+bool KlonTUIke_IsReserveLeft(KlonTUIke_Table* table) {
+	if (NULL == table || table->reserve.size == 0
+			|| table->reserve.current + 1 == table->reserve.size) {
+		return false;
+	} else {
+		return true;
+	}
 }
 
 uint8_t KlonTUIke_GetCursor(KlonTUIke_Table* table) {
@@ -397,16 +415,16 @@ static void removeFromFoundation(KlonTUIke_Table* table, uint8_t index) {
 }
 
 static void removeFromReserve(KlonTUIke_Table* table) {
-	if (table->reserve.firstVisible >= table->reserve.size) {
+	if (table->reserve.current >= table->reserve.size) {
 		return;
 	}
-	memmove(table->reserve.cards + table->reserve.firstVisible,
-			table->reserve.cards + table->reserve.firstVisible + 1,
-			table->reserve.size - table->reserve.firstVisible - 1);
+	memmove(table->reserve.cards + table->reserve.current,
+			table->reserve.cards + table->reserve.current + 1,
+			table->reserve.size - table->reserve.current - 1);
 	table->reserve.size--;
-	table->reserve.firstVisible--;
-	if (table->reserve.firstVisible > table->reserve.size) {
-		table->reserve.firstVisible = table->reserve.size;
+	table->reserve.current--;
+	if (table->reserve.current > table->reserve.size) {
+		table->reserve.current = table->reserve.size;
 	}
 }
 
