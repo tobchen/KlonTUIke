@@ -280,8 +280,9 @@ void KlonTUIke_CursorAction(KlonTUIke_Table* table) {
 				/* Foundation */
 				} else if (table->selection >= 143 && table->selection <= 146) {
 					founIndexFrom = table->selection - 143;
-					if (mayBeOnFoundation(table, founIndex,
-								table->foundations[founIndexFrom])) {
+					if (founIndex != founIndexFrom
+							&& mayBeOnFoundation(table, founIndex,
+									table->foundations[founIndexFrom])) {
 						table->foundations[founIndex] =
 								table->foundations[founIndexFrom];
 						removeFromFoundation(table, founIndexFrom);
