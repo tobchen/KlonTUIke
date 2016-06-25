@@ -7,12 +7,11 @@ KlonTUIke is a Klondike (solitaire) to be played in a terminal.
 The root directory contains a simple Makefile (requiring gcc to be the C
 compiler and ncurses or even ncursesw to be installed).
 
-`make standard` or just `make` compiles standard KlonTUIke which uses strictly
+`make standard` or just `make` compiles standard KlonTUIke which strictly uses
 ASCII characters. `make unicode` compiles a unicode KlonTUIke that makes use of
 unicode card suit symbols but needs ncursesw to be installed and needs a unicode
-terminal to be played. The binarys are then found in the bin-directory with
-klontuike being standard KlonTUIke and klontuike_unicode being the unicode
-version.
+terminal to be played. The binaries are then found in the bin-directory with
+ktui being standard KlonTUIke and ktui_uni being the unicode version.
 
 ## Play
 
