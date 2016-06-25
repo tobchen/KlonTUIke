@@ -17,7 +17,7 @@
 	#include <ncursesw/ncurses.h>
 #endif
 
-#include "logical.h"
+#include "lv_interface.h"
 #include "visual.h"
 
 typedef enum {
@@ -26,7 +26,7 @@ typedef enum {
 
 int main(void) {
 	KlonTUIke_State currentState;
-	KlonTUIke_Table* table;
+	KlonTUIke_LVInterface* interface;
 	int input;
 	time_t start, end;
 
@@ -37,16 +37,16 @@ int main(void) {
 	srand(time(NULL));
 
 	/* Table */
-	table = KlonTUIke_CreateTable();
-	if (NULL == table) {
-		puts("Failed to create game table!");
+	interface = KlonTUIke_CreateInterface();
+	if (NULL == interface) {
+		puts("Failed to create game interface!");
 		return EXIT_FAILURE;
 	}
 
 	/* Visual */
 	if (KlonTUIke_InitVisual()) {
 		puts("Failed to setup visuals!");
-		KlonTUIke_DestroyTable(table);
+		KlonTUIke_DestroyInterface(interface);
 		return EXIT_FAILURE;
 	}
 
@@ -56,29 +56,33 @@ int main(void) {
 	while (true) {
 		input = KlonTUIke_RequestInput();
 
-		if (input == 113) { /* q = Quit */
+		/* q = Quit */
+		if (input == 113) {
 			break;
-		} else if (input == 110) { /* n = New game */
-			KlonTUIke_ResetupTable(table);
+		/* n = New game */
+		} else if (input == 110) {
+			KlonTUIke_ResetupInterface(interface);
 			currentState = INGAME;
 			start = time(NULL);
 		} else if (currentState == INGAME) {
 			if (input == KEY_LEFT) {
-				KlonTUIke_CursorLeft(table);
+				KlonTUIke_CursorLeft(interface);
 			} else if (input == KEY_RIGHT) {
-				KlonTUIke_CursorRight(table);
+				KlonTUIke_CursorRight(interface);
 			} else if (input == KEY_UP) {
-				KlonTUIke_CursorUp(table);
+				KlonTUIke_CursorUp(interface);
 			} else if (input == KEY_DOWN) {
-				KlonTUIke_CursorDown(table);
-			} else if (input == 10) { /* \n = Enter */
-				KlonTUIke_CursorAction(table);
+				KlonTUIke_CursorDown(interface);
+			/* \n = Enter */
+			} else if (input == 10) {
+				KlonTUIke_CursorAction(interface);
 			} else if (input == KEY_BACKSPACE) {
-				KlonTUIke_CancelSelection(table);
+				KlonTUIke_CancelSelection(interface);
 			}
 		}
 
-		if (currentState == INGAME && KlonTUIke_HasWon(table)) {
+		if (currentState == INGAME
+				&& KlonTUIke_HasWon(KlonTUIke_GetTable(interface))) {
 			end = time(NULL);
 			currentState = WON;
 		}
@@ -91,13 +95,13 @@ int main(void) {
 			KlonTUIke_DrawWon(end - start);
 			break;
 		default:
-			KlonTUIke_DrawTable(table);
+			KlonTUIke_DrawGame(interface);
 		}
 	}
 
 	/* Clean up */
 	KlonTUIke_QuitVisual();
-	KlonTUIke_DestroyTable(table);
+	KlonTUIke_DestroyInterface(interface);
 
 	return EXIT_SUCCESS;
 }

@@ -73,15 +73,22 @@ void KlonTUIke_QuitVisual() {
 	endwin();
 }
 
-void KlonTUIke_DrawTable(KlonTUIke_Table* table) {
+void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface) {
 	uint8_t i, j;
 	uint8_t card;
 	uint8_t position;
+	KlonTUIke_Table* table;
 	#ifdef KLONTUIKE_DEBUG
 		char cursorPos[8];
 	#endif
 
+	if (NULL == interface) {
+		return;
+	}
+
 	wclear(window);
+
+	table = KlonTUIke_GetTable(interface);
 
 	/* Reserve */
 	if (KlonTUIke_IsReserveLeft(table)) {
@@ -131,7 +138,7 @@ void KlonTUIke_DrawTable(KlonTUIke_Table* table) {
 	#endif
 
 	/* Selection */
-	position = KlonTUIke_GetSelection(table);
+	position = KlonTUIke_GetSelection(interface);
 	if (position > 0) {
 		/* Tableau */
 		if (position < 140) {
@@ -149,7 +156,7 @@ void KlonTUIke_DrawTable(KlonTUIke_Table* table) {
 	}
 
 	/* Cursor */
-	position = KlonTUIke_GetCursor(table);
+	position = KlonTUIke_GetCursor(interface);
 	/* Tableau */
 	if (position < 140) {
 		i = position / 20;

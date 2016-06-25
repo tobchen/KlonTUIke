@@ -10,13 +10,13 @@
 
 #include <time.h>
 
-#include "logical.h"
+#include "lv_interface.h"
 
 int KlonTUIke_InitVisual();
 
 void KlonTUIke_QuitVisual();
 
-void KlonTUIke_DrawTable(KlonTUIke_Table* table);
+void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface);
 
 void KlonTUIke_DrawStart();
 
