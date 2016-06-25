@@ -11,39 +11,39 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct klontuike_table KlonTUIke_Table;
+typedef struct ktui_table KTUI_Table;
 
-KlonTUIke_Table* KlonTUIke_CreateTable();
-void KlonTUIke_DestroyTable(KlonTUIke_Table* table);
+KTUI_Table* KTUI_CreateTable();
+void KTUI_DestroyTable(KTUI_Table* table);
 
-void KlonTUIke_ResetupTable(KlonTUIke_Table* table);
+void KTUI_ResetupTable(KTUI_Table* table);
 
-void KlonTUIke_TurnReserve(KlonTUIke_Table* table);
+void KTUI_TurnReserve(KTUI_Table* table);
 
-bool KlonTUIke_FoundationToFoundation(KlonTUIke_Table* table,
+bool KTUI_FoundationToFoundation(KTUI_Table* table,
 		uint8_t indexFrom, uint8_t indexTo);
-bool KlonTUIke_FoundationToTableau(KlonTUIke_Table* table,
+bool KTUI_FoundationToTableau(KTUI_Table* table,
 		uint8_t indexFrom, uint8_t indexTo);
 
-bool KlonTUIke_ReserveToFoundation(KlonTUIke_Table* table, uint8_t indexTo);
-bool KlonTUIke_ReserveToTableau(KlonTUIke_Table* table, uint8_t indexTo);
+bool KTUI_ReserveToFoundation(KTUI_Table* table, uint8_t indexTo);
+bool KTUI_ReserveToTableau(KTUI_Table* table, uint8_t indexTo);
 
-bool KlonTUIke_TableauToFoundation(KlonTUIke_Table* table, uint8_t indexFrom,
+bool KTUI_TableauToFoundation(KTUI_Table* table, uint8_t indexFrom,
 		uint8_t indexTo);
-bool KlonTUIke_TableauToTableau(KlonTUIke_Table* table,
+bool KTUI_TableauToTableau(KTUI_Table* table,
 		uint8_t indexFrom, uint8_t posFrom, uint8_t indexTo);
 
-uint8_t KlonTUIke_GetTableau(KlonTUIke_Table* table, uint8_t index,
+uint8_t KTUI_GetTableau(KTUI_Table* table, uint8_t index,
 		uint8_t position);
-uint8_t KlonTUIke_GetTableauSize(KlonTUIke_Table* table, uint8_t index);
-uint8_t KlonTUIke_GetTableauFirstVis(KlonTUIke_Table* table, uint8_t index);
+uint8_t KTUI_GetTableauSize(KTUI_Table* table, uint8_t index);
+uint8_t KTUI_GetTableauFirstVis(KTUI_Table* table, uint8_t index);
 
-uint8_t KlonTUIke_GetFoundation(KlonTUIke_Table* table, uint8_t index);
-uint8_t KlonTUIke_GetOpenReserve(KlonTUIke_Table* table);
-bool KlonTUIke_IsReserveLeft(KlonTUIke_Table* table);
+uint8_t KTUI_GetFoundation(KTUI_Table* table, uint8_t index);
+uint8_t KTUI_GetOpenReserve(KTUI_Table* table);
+bool KTUI_IsReserveLeft(KTUI_Table* table);
 
-void KlonTUIke_GetCardInfo(uint8_t card, uint8_t* suit, uint8_t* numeral);
+void KTUI_GetCardInfo(uint8_t card, uint8_t* suit, uint8_t* numeral);
 
-bool KlonTUIke_HasWon(KlonTUIke_Table* table);
+bool KTUI_HasWon(KTUI_Table* table);
 
 #endif /* KLONTUIKE_SRC_LOGICAL_H */

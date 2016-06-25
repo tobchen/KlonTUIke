@@ -29,7 +29,7 @@ static void drawCard(int y, int x, uint8_t card, bool selected);
 static void drawBack(int y, int x);
 static void drawEmpty(int y, int x);
 
-int KlonTUIke_InitVisual() {
+int KTUI_InitVisual() {
 	/* Initialize curses */
 	if (initscr() == NULL) {
 		return -1;
@@ -68,16 +68,16 @@ int KlonTUIke_InitVisual() {
 	return 0;
 }
 
-void KlonTUIke_QuitVisual() {
+void KTUI_QuitVisual() {
 	delwin(window);
 	endwin();
 }
 
-void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface) {
+void KTUI_DrawGame(KTUI_LVInterface* interface) {
 	uint8_t i, j;
 	uint8_t card;
 	uint8_t position;
-	KlonTUIke_Table* table;
+	KTUI_Table* table;
 	#ifdef KLONTUIKE_DEBUG
 		char cursorPos[8];
 	#endif
@@ -88,15 +88,15 @@ void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface) {
 
 	wclear(window);
 
-	table = KlonTUIke_GetTable(interface);
+	table = KTUI_GetTable(interface);
 
 	/* Reserve */
-	if (KlonTUIke_IsReserveLeft(table)) {
+	if (KTUI_IsReserveLeft(table)) {
 		drawBack(0, 0);
 	} else {
 		drawEmpty(0, 0);
 	}
-	card = KlonTUIke_GetOpenReserve(table);
+	card = KTUI_GetOpenReserve(table);
 	if (card < 52) {
 		drawCard(0, 4, card, false);
 	} else {
@@ -105,7 +105,7 @@ void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface) {
 
 	/* Foundation */
 	for (i = 0; i < 4; i++) {
-		j = KlonTUIke_GetFoundation(table, i);
+		j = KTUI_GetFoundation(table, i);
 		if (j < 52) { /* Card on foundation */
 			drawCard(0, 12 + i * 4, j, false);
 		} else { /* Empty */
@@ -116,7 +116,7 @@ void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface) {
 	/* Tableaus */
 	for (i = 0; i < 7; i++) {
 		for (j = 0;; j++) {
-			card = KlonTUIke_GetTableau(table, i, j);
+			card = KTUI_GetTableau(table, i, j);
 			if (card == 52) {
 				break;
 			} else if (card == 53) {
@@ -131,32 +131,32 @@ void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface) {
 	}
 
 	#ifdef KLONTUIKE_DEBUG
-		sprintf(cursorPos, "%u,%u", KlonTUIke_GetCursor(table),
-				KlonTUIke_GetSelection(table));
+		sprintf(cursorPos, "%u,%u", KTUI_GetCursor(table),
+				KTUI_GetSelection(table));
 		wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_WHITE));
 		mvwaddstr(window, 20, 0, cursorPos);
 	#endif
 
 	/* Selection */
-	position = KlonTUIke_GetSelection(interface);
+	position = KTUI_GetSelection(interface);
 	if (position > 0) {
 		/* Tableau */
 		if (position < 140) {
 			i = position / 20;
 			j = position % 20 - 1;
-			drawCard(2 + j, i * 4, KlonTUIke_GetTableau(table, i, j), true);
+			drawCard(2 + j, i * 4, KTUI_GetTableau(table, i, j), true);
 		/* Open Reserved */
 		} else if (position == 141) {
-			drawCard(0, 4, KlonTUIke_GetOpenReserve(table), true);
+			drawCard(0, 4, KTUI_GetOpenReserve(table), true);
 		/* Foundation */
 		} else if (position >= 143 && position <= 146) {
 			i = position - 143;
-			drawCard(0, 12 + i * 4, KlonTUIke_GetFoundation(table, i), true);
+			drawCard(0, 12 + i * 4, KTUI_GetFoundation(table, i), true);
 		}
 	}
 
 	/* Cursor */
-	position = KlonTUIke_GetCursor(interface);
+	position = KTUI_GetCursor(interface);
 	/* Tableau */
 	if (position < 140) {
 		i = position / 20;
@@ -175,7 +175,7 @@ void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface) {
 	wrefresh(window);
 }
 
-void KlonTUIke_DrawStart() {
+void KTUI_DrawStart() {
 	wclear(window);
 
 	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_WHITE));
@@ -194,7 +194,7 @@ void KlonTUIke_DrawStart() {
 	wrefresh(window);
 }
 
-void KlonTUIke_DrawWon(time_t playtime) {
+void KTUI_DrawWon(time_t playtime) {
 	char playtimeText[20];
 	int playtimeX;
 
@@ -217,7 +217,7 @@ void KlonTUIke_DrawWon(time_t playtime) {
 	wrefresh(window);
 }
 
-int KlonTUIke_RequestInput() {
+int KTUI_RequestInput() {
 	return wgetch(window);
 }
 

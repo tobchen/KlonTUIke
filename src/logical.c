@@ -23,7 +23,7 @@ typedef struct reserve {
 	uint8_t current;
 } Reserve;
 
-struct klontuike_table {
+struct ktui_table {
 	/* Staples */
 	Tableau tableaus[7];
 	Reserve reserve;
@@ -33,36 +33,36 @@ struct klontuike_table {
 	uint8_t foundations[4];
 };
 
-static void removeFromFoundation(KlonTUIke_Table* table, uint8_t index);
-static void removeFromReserve(KlonTUIke_Table* table);
-static void removeFromTableau(KlonTUIke_Table* table, uint8_t index,
+static void removeFromFoundation(KTUI_Table* table, uint8_t index);
+static void removeFromReserve(KTUI_Table* table);
+static void removeFromTableau(KTUI_Table* table, uint8_t index,
 		uint8_t first);
 
-static void placeOnTableau(KlonTUIke_Table* table, uint8_t index,
+static void placeOnTableau(KTUI_Table* table, uint8_t index,
 		uint8_t* cards, uint8_t length);
 
-static bool mayBeOnFoundation(KlonTUIke_Table* table, uint8_t index,
+static bool mayBeOnFoundation(KTUI_Table* table, uint8_t index,
 		uint8_t card);
-static bool mayBeOnTableau(KlonTUIke_Table* table, uint8_t index, uint8_t card);
+static bool mayBeOnTableau(KTUI_Table* table, uint8_t index, uint8_t card);
 
-KlonTUIke_Table* KlonTUIke_CreateTable() {
-	KlonTUIke_Table* table = malloc(sizeof(KlonTUIke_Table));
+KTUI_Table* KTUI_CreateTable() {
+	KTUI_Table* table = malloc(sizeof(KTUI_Table));
 	if (NULL == table) {
 		return NULL;
 	}
 
-	KlonTUIke_ResetupTable(table);
+	KTUI_ResetupTable(table);
 
 	return table;
 }
 
-void KlonTUIke_DestroyTable(KlonTUIke_Table* table) {
+void KTUI_DestroyTable(KTUI_Table* table) {
 	if (table != NULL) {
 		free(table);
 	}
 }
 
-void KlonTUIke_ResetupTable(KlonTUIke_Table* table) {
+void KTUI_ResetupTable(KTUI_Table* table) {
 	uint8_t deck[52];
 	uint8_t i;
 	uint8_t j;
@@ -111,7 +111,7 @@ void KlonTUIke_ResetupTable(KlonTUIke_Table* table) {
 	table->reserve.current = 24;
 }
 
-void KlonTUIke_TurnReserve(KlonTUIke_Table* table) {
+void KTUI_TurnReserve(KTUI_Table* table) {
 	if (table != NULL) {
 		table->reserve.current++;
 		if (table->reserve.current > table->reserve.size) {
@@ -120,7 +120,7 @@ void KlonTUIke_TurnReserve(KlonTUIke_Table* table) {
 	}
 }
 
-bool KlonTUIke_FoundationToFoundation(KlonTUIke_Table* table,
+bool KTUI_FoundationToFoundation(KTUI_Table* table,
 		uint8_t indexFrom, uint8_t indexTo) {
 	/* TODO Check index bounds */
 	if (table != NULL && indexFrom != indexTo
@@ -132,7 +132,7 @@ bool KlonTUIke_FoundationToFoundation(KlonTUIke_Table* table,
 	return false;
 }
 
-bool KlonTUIke_FoundationToTableau(KlonTUIke_Table* table,
+bool KTUI_FoundationToTableau(KTUI_Table* table,
 		uint8_t indexFrom, uint8_t indexTo) {
 	/* TODO Check index bounds */
 	if (table != NULL &&
@@ -145,12 +145,12 @@ bool KlonTUIke_FoundationToTableau(KlonTUIke_Table* table,
 	return false;
 }
 
-bool KlonTUIke_ReserveToFoundation(KlonTUIke_Table* table, uint8_t indexTo) {
+bool KTUI_ReserveToFoundation(KTUI_Table* table, uint8_t indexTo) {
 	uint8_t reserveCard;
 
 	/* TODO Check index bounds */
 	if (table != NULL) {
-		reserveCard = KlonTUIke_GetOpenReserve(table);
+		reserveCard = KTUI_GetOpenReserve(table);
 		if (mayBeOnFoundation(table, indexTo, reserveCard)) {
 			table->foundations[indexTo] = reserveCard;
 			removeFromReserve(table);
@@ -160,12 +160,12 @@ bool KlonTUIke_ReserveToFoundation(KlonTUIke_Table* table, uint8_t indexTo) {
 	return false;
 }
 
-bool KlonTUIke_ReserveToTableau(KlonTUIke_Table* table, uint8_t indexTo) {
+bool KTUI_ReserveToTableau(KTUI_Table* table, uint8_t indexTo) {
 	uint8_t reserveCard;
 
 	/* TODO Check index bounds */
 	if (table != NULL) {
-		reserveCard = KlonTUIke_GetOpenReserve(table);
+		reserveCard = KTUI_GetOpenReserve(table);
 		if (mayBeOnTableau(table, indexTo, reserveCard)) {
 			placeOnTableau(table, indexTo, &reserveCard, 1);
 			removeFromReserve(table);
@@ -175,7 +175,7 @@ bool KlonTUIke_ReserveToTableau(KlonTUIke_Table* table, uint8_t indexTo) {
 	return false;
 }
 
-bool KlonTUIke_TableauToFoundation(KlonTUIke_Table* table, uint8_t indexFrom,
+bool KTUI_TableauToFoundation(KTUI_Table* table, uint8_t indexFrom,
 		uint8_t indexTo) {
 	uint8_t tableauCard;
 	uint8_t lastTableauPos;
@@ -193,13 +193,13 @@ bool KlonTUIke_TableauToFoundation(KlonTUIke_Table* table, uint8_t indexFrom,
 	return false;
 }
 
-bool KlonTUIke_TableauToTableau(KlonTUIke_Table* table,
+bool KTUI_TableauToTableau(KTUI_Table* table,
 		uint8_t indexFrom, uint8_t posFrom, uint8_t indexTo) {
 	uint8_t tableauCard;
 
 	/* TODO Check index bounds */
 	if (table != NULL) {
-		tableauCard = KlonTUIke_GetTableau(table, indexFrom, posFrom);
+		tableauCard = KTUI_GetTableau(table, indexFrom, posFrom);
 		if (indexFrom != indexTo
 				&& mayBeOnTableau(table, indexTo, tableauCard)) {
 			placeOnTableau(table, indexTo,
@@ -212,7 +212,7 @@ bool KlonTUIke_TableauToTableau(KlonTUIke_Table* table,
 	return false;
 }
 
-uint8_t KlonTUIke_GetTableau(KlonTUIke_Table* table, uint8_t index,
+uint8_t KTUI_GetTableau(KTUI_Table* table, uint8_t index,
 		uint8_t position) {
 	if (NULL == table || index >= 7 || position >= table->tableaus[index].size) {
 		return 52;
@@ -223,7 +223,7 @@ uint8_t KlonTUIke_GetTableau(KlonTUIke_Table* table, uint8_t index,
 	}
 }
 
-uint8_t KlonTUIke_GetTableauSize(KlonTUIke_Table* table, uint8_t index) {
+uint8_t KTUI_GetTableauSize(KTUI_Table* table, uint8_t index) {
 	if (table != NULL && index < 7) {
 		return table->tableaus[index].size;
 	} else {
@@ -231,7 +231,7 @@ uint8_t KlonTUIke_GetTableauSize(KlonTUIke_Table* table, uint8_t index) {
 	}
 }
 
-uint8_t KlonTUIke_GetTableauFirstVis(KlonTUIke_Table* table, uint8_t index) {
+uint8_t KTUI_GetTableauFirstVis(KTUI_Table* table, uint8_t index) {
 	if (table != NULL && index < 7) {
 		return table->tableaus[index].firstVisible;
 	} else {
@@ -239,7 +239,7 @@ uint8_t KlonTUIke_GetTableauFirstVis(KlonTUIke_Table* table, uint8_t index) {
 	}
 }
 
-uint8_t KlonTUIke_GetFoundation(KlonTUIke_Table* table, uint8_t index) {
+uint8_t KTUI_GetFoundation(KTUI_Table* table, uint8_t index) {
 	if (NULL == table) {
 		return 52;
 	} else {
@@ -247,7 +247,7 @@ uint8_t KlonTUIke_GetFoundation(KlonTUIke_Table* table, uint8_t index) {
 	}
 }
 
-uint8_t KlonTUIke_GetOpenReserve(KlonTUIke_Table* table) {
+uint8_t KTUI_GetOpenReserve(KTUI_Table* table) {
 	if (NULL == table || table->reserve.current >= table->reserve.size) {
 		return 52;
 	} else {
@@ -255,7 +255,7 @@ uint8_t KlonTUIke_GetOpenReserve(KlonTUIke_Table* table) {
 	}
 }
 
-bool KlonTUIke_IsReserveLeft(KlonTUIke_Table* table) {
+bool KTUI_IsReserveLeft(KTUI_Table* table) {
 	if (NULL == table || table->reserve.size == 0
 			|| table->reserve.current + 1 == table->reserve.size) {
 		return false;
@@ -264,7 +264,7 @@ bool KlonTUIke_IsReserveLeft(KlonTUIke_Table* table) {
 	}
 }
 
-void KlonTUIke_GetCardInfo(uint8_t card, uint8_t* suit, uint8_t* numeral) {
+void KTUI_GetCardInfo(uint8_t card, uint8_t* suit, uint8_t* numeral) {
 	if (suit != NULL) {
 		*suit = card / 13;
 	}
@@ -273,7 +273,7 @@ void KlonTUIke_GetCardInfo(uint8_t card, uint8_t* suit, uint8_t* numeral) {
 	}
 }
 
-bool KlonTUIke_HasWon(KlonTUIke_Table* table) {
+bool KTUI_HasWon(KTUI_Table* table) {
 	uint8_t i;
 	if (NULL == table) {
 		return false;
@@ -286,7 +286,7 @@ bool KlonTUIke_HasWon(KlonTUIke_Table* table) {
 	return true;
 }
 
-static void removeFromFoundation(KlonTUIke_Table* table, uint8_t index) {
+static void removeFromFoundation(KTUI_Table* table, uint8_t index) {
 	if (NULL == table || table->foundations[index] >= 52) {
 		return;
 	}
@@ -299,7 +299,7 @@ static void removeFromFoundation(KlonTUIke_Table* table, uint8_t index) {
 	}
 }
 
-static void removeFromReserve(KlonTUIke_Table* table) {
+static void removeFromReserve(KTUI_Table* table) {
 	if (NULL == table || table->reserve.current >= table->reserve.size) {
 		return;
 	}
@@ -313,7 +313,7 @@ static void removeFromReserve(KlonTUIke_Table* table) {
 	}
 }
 
-static void removeFromTableau(KlonTUIke_Table* table, uint8_t index,
+static void removeFromTableau(KTUI_Table* table, uint8_t index,
 		uint8_t first) {
 	if (NULL == table || table->tableaus[index].size == 0
 			|| first < table->tableaus[index].firstVisible
@@ -327,7 +327,7 @@ static void removeFromTableau(KlonTUIke_Table* table, uint8_t index,
 	table->tableaus[index].size = first;
 }
 
-static void placeOnTableau(KlonTUIke_Table* table, uint8_t index,
+static void placeOnTableau(KTUI_Table* table, uint8_t index,
 		uint8_t* cards, uint8_t length) {
 	if (NULL == table || (NULL == cards && length > 0)) {
 		return;
@@ -340,7 +340,7 @@ static void placeOnTableau(KlonTUIke_Table* table, uint8_t index,
 	table->tableaus[index].size += length;
 }
 
-static bool mayBeOnFoundation(KlonTUIke_Table* table, uint8_t index,
+static bool mayBeOnFoundation(KTUI_Table* table, uint8_t index,
 		uint8_t card) {
 	uint8_t foundSuit, foundNumeral;
 	uint8_t cardSuit, cardNumeral;
@@ -350,13 +350,13 @@ static bool mayBeOnFoundation(KlonTUIke_Table* table, uint8_t index,
 	}
 
 	/* Will store garbage if foundation's empty */
-	KlonTUIke_GetCardInfo(table->foundations[index], &foundSuit, &foundNumeral);
-	KlonTUIke_GetCardInfo(card, &cardSuit, &cardNumeral);
+	KTUI_GetCardInfo(table->foundations[index], &foundSuit, &foundNumeral);
+	KTUI_GetCardInfo(card, &cardSuit, &cardNumeral);
 	return (table->foundations[index] >= 52 && cardNumeral == 0)
 			|| (foundSuit == cardSuit && foundNumeral + 1 == cardNumeral);
 }
 
-static bool mayBeOnTableau(KlonTUIke_Table* table, uint8_t index, uint8_t card) {
+static bool mayBeOnTableau(KTUI_Table* table, uint8_t index, uint8_t card) {
 	uint8_t tabSuit, tabNumeral;
 	uint8_t cardSuit, cardNumeral;
 
@@ -364,11 +364,11 @@ static bool mayBeOnTableau(KlonTUIke_Table* table, uint8_t index, uint8_t card) 
 		return false;
 	}
 
-	KlonTUIke_GetCardInfo(card, &cardSuit, &cardNumeral);
+	KTUI_GetCardInfo(card, &cardSuit, &cardNumeral);
 	if (table->tableaus[index].size == 0) {
 		return cardNumeral == 12;
 	} else {
-		KlonTUIke_GetCardInfo(
+		KTUI_GetCardInfo(
 				table->tableaus[index].cards[table->tableaus[index].size - 1],
 				&tabSuit, &tabNumeral);
 		return tabNumeral == cardNumeral + 1

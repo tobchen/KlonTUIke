@@ -17,7 +17,7 @@
 	#include <ncursesw/ncurses.h>
 #endif
 
-#include "lv_interface.h"
+#include "lv_inter.h"
 #include "visual.h"
 
 typedef enum {
@@ -26,7 +26,7 @@ typedef enum {
 
 int main(void) {
 	KlonTUIke_State currentState;
-	KlonTUIke_LVInterface* interface;
+	KTUI_LVInterface* interface;
 	int input;
 	time_t start, end;
 
@@ -37,71 +37,71 @@ int main(void) {
 	srand(time(NULL));
 
 	/* Table */
-	interface = KlonTUIke_CreateInterface();
+	interface = KTUI_CreateInterface();
 	if (NULL == interface) {
 		puts("Failed to create game interface!");
 		return EXIT_FAILURE;
 	}
 
 	/* Visual */
-	if (KlonTUIke_InitVisual()) {
+	if (KTUI_InitVisual()) {
 		puts("Failed to setup visuals!");
-		KlonTUIke_DestroyInterface(interface);
+		KTUI_DestroyInterface(interface);
 		return EXIT_FAILURE;
 	}
 
 	/* Main loop */
 	currentState = START;
-	KlonTUIke_DrawStart();
+	KTUI_DrawStart();
 	while (true) {
-		input = KlonTUIke_RequestInput();
+		input = KTUI_RequestInput();
 
 		/* q = Quit */
 		if (input == 113) {
 			break;
 		/* n = New game */
 		} else if (input == 110) {
-			KlonTUIke_ResetupInterface(interface);
+			KTUI_ResetupInterface(interface);
 			currentState = INGAME;
 			start = time(NULL);
 		} else if (currentState == INGAME) {
 			if (input == KEY_LEFT) {
-				KlonTUIke_CursorLeft(interface);
+				KTUI_CursorLeft(interface);
 			} else if (input == KEY_RIGHT) {
-				KlonTUIke_CursorRight(interface);
+				KTUI_CursorRight(interface);
 			} else if (input == KEY_UP) {
-				KlonTUIke_CursorUp(interface);
+				KTUI_CursorUp(interface);
 			} else if (input == KEY_DOWN) {
-				KlonTUIke_CursorDown(interface);
+				KTUI_CursorDown(interface);
 			/* \n = Enter */
 			} else if (input == 10) {
-				KlonTUIke_CursorAction(interface);
+				KTUI_CursorAction(interface);
 			} else if (input == KEY_BACKSPACE) {
-				KlonTUIke_CancelSelection(interface);
+				KTUI_CancelSelection(interface);
 			}
 		}
 
 		if (currentState == INGAME
-				&& KlonTUIke_HasWon(KlonTUIke_GetTable(interface))) {
+				&& KTUI_HasWon(KTUI_GetTable(interface))) {
 			end = time(NULL);
 			currentState = WON;
 		}
 
 		switch (currentState) {
 		case START:
-			KlonTUIke_DrawStart();
+			KTUI_DrawStart();
 			break;
 		case WON:
-			KlonTUIke_DrawWon(end - start);
+			KTUI_DrawWon(end - start);
 			break;
 		default:
-			KlonTUIke_DrawGame(interface);
+			KTUI_DrawGame(interface);
 		}
 	}
 
 	/* Clean up */
-	KlonTUIke_QuitVisual();
-	KlonTUIke_DestroyInterface(interface);
+	KTUI_QuitVisual();
+	KTUI_DestroyInterface(interface);
 
 	return EXIT_SUCCESS;
 }

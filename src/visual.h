@@ -10,18 +10,18 @@
 
 #include <time.h>
 
-#include "lv_interface.h"
+#include "lv_inter.h"
 
-int KlonTUIke_InitVisual();
+int KTUI_InitVisual();
 
-void KlonTUIke_QuitVisual();
+void KTUI_QuitVisual();
 
-void KlonTUIke_DrawGame(KlonTUIke_LVInterface* interface);
+void KTUI_DrawGame(KTUI_LVInterface* interface);
 
-void KlonTUIke_DrawStart();
+void KTUI_DrawStart();
 
-void KlonTUIke_DrawWon(time_t playtime);
+void KTUI_DrawWon(time_t playtime);
 
-int KlonTUIke_RequestInput();
+int KTUI_RequestInput();
 
 #endif /* KLONTUIKE_SRC_VISUAL_H */

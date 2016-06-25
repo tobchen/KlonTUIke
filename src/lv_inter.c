@@ -5,12 +5,12 @@
  *      Author: tobchen
  */
 
-#include "lv_interface.h"
+#include "lv_inter.h"
 
 #include <stdlib.h>
 
-struct klontuike_lv_interface {
-	KlonTUIke_Table* table;
+struct ktui_lv_interface {
+	KTUI_Table* table;
 
 	/* Position of cursor and selection
 	 * For every one of the seven tableaus:
@@ -25,15 +25,15 @@ struct klontuike_lv_interface {
 	uint8_t selection;
 };
 
-static void setCursorToTableau(KlonTUIke_LVInterface* interface,
+static void setCursorToTableau(KTUI_LVInterface* interface,
 		uint8_t nextTabIndex);
 
-KlonTUIke_LVInterface* KlonTUIke_CreateInterface() {
-	KlonTUIke_LVInterface* result = malloc(sizeof(KlonTUIke_LVInterface));
+KTUI_LVInterface* KTUI_CreateInterface() {
+	KTUI_LVInterface* result = malloc(sizeof(KTUI_LVInterface));
 	if (NULL == result) {
 		return NULL;
 	}
-	result->table = KlonTUIke_CreateTable();
+	result->table = KTUI_CreateTable();
 	if (NULL == result->table) {
 		free(result);
 		return NULL;
@@ -41,25 +41,25 @@ KlonTUIke_LVInterface* KlonTUIke_CreateInterface() {
 	return result;
 }
 
-void KlonTUIke_DestroyInterface(KlonTUIke_LVInterface* interface) {
+void KTUI_DestroyInterface(KTUI_LVInterface* interface) {
 	if (interface != NULL) {
-		KlonTUIke_DestroyTable(interface->table);
+		KTUI_DestroyTable(interface->table);
 		free(interface);
 	}
 }
 
-void KlonTUIke_ResetupInterface(KlonTUIke_LVInterface* interface) {
+void KTUI_ResetupInterface(KTUI_LVInterface* interface) {
 	if (interface != NULL) {
-		KlonTUIke_ResetupTable(interface->table);
+		KTUI_ResetupTable(interface->table);
 		interface->cursor = 140;
 		interface->selection = 0;
 	}
 }
 
-void KlonTUIke_CursorUp(KlonTUIke_LVInterface* interface) {
+void KTUI_CursorUp(KTUI_LVInterface* interface) {
 	uint8_t tabIndex;
 	uint8_t tabPos;
-	KlonTUIke_Table* table;
+	KTUI_Table* table;
 
 	if (NULL == interface) {
 		return;
@@ -72,7 +72,7 @@ void KlonTUIke_CursorUp(KlonTUIke_LVInterface* interface) {
 		tabPos = interface->cursor % 20;
 
 		if (tabPos == 0
-				|| tabPos - 1 <= KlonTUIke_GetTableauFirstVis(table, tabIndex)) {
+				|| tabPos - 1 <= KTUI_GetTableauFirstVis(table, tabIndex)) {
 			interface->cursor = 140 + tabIndex;
 		} else {
 			interface->cursor = tabIndex * 20 + tabPos - 1;
@@ -81,14 +81,14 @@ void KlonTUIke_CursorUp(KlonTUIke_LVInterface* interface) {
 	} else {
 		tabIndex = interface->cursor - 140;
 		interface->cursor =
-				tabIndex * 20 + KlonTUIke_GetTableauSize(table, tabIndex);
+				tabIndex * 20 + KTUI_GetTableauSize(table, tabIndex);
 	}
 }
 
-void KlonTUIke_CursorDown(KlonTUIke_LVInterface* interface) {
+void KTUI_CursorDown(KTUI_LVInterface* interface) {
 	uint8_t tabIndex;
 	uint8_t tabPos;
-	KlonTUIke_Table* table;
+	KTUI_Table* table;
 
 	if (NULL == interface) {
 		return;
@@ -100,7 +100,7 @@ void KlonTUIke_CursorDown(KlonTUIke_LVInterface* interface) {
 		tabIndex = interface->cursor / 20;
 		tabPos = interface->cursor % 20;
 
-		if (tabPos > 0 && tabPos < KlonTUIke_GetTableauSize(table, tabIndex)) {
+		if (tabPos > 0 && tabPos < KTUI_GetTableauSize(table, tabIndex)) {
 			interface->cursor = tabIndex * 20 + tabPos + 1;
 		} else {
 			interface->cursor = 140 + tabIndex;
@@ -108,16 +108,16 @@ void KlonTUIke_CursorDown(KlonTUIke_LVInterface* interface) {
 	/* Reserve or foundation */
 	} else {
 		tabIndex = interface->cursor - 140;
-		if (KlonTUIke_GetTableauSize(table, tabIndex) > 0) {
+		if (KTUI_GetTableauSize(table, tabIndex) > 0) {
 			interface->cursor = tabIndex * 20
-					+ KlonTUIke_GetTableauFirstVis(table, tabIndex) + 1;
+					+ KTUI_GetTableauFirstVis(table, tabIndex) + 1;
 		} else {
 			interface->cursor = tabIndex * 20;
 		}
 	}
 }
 
-void KlonTUIke_CursorLeft(KlonTUIke_LVInterface* interface) {
+void KTUI_CursorLeft(KTUI_LVInterface* interface) {
 	uint8_t curTabIndex, nextTabIndex;
 
 	if (NULL == interface) {
@@ -141,7 +141,7 @@ void KlonTUIke_CursorLeft(KlonTUIke_LVInterface* interface) {
 	}
 }
 
-void KlonTUIke_CursorRight(KlonTUIke_LVInterface* interface) {
+void KTUI_CursorRight(KTUI_LVInterface* interface) {
 	uint8_t curTabIndex, nextTabIndex;
 
 	if (NULL == interface) {
@@ -165,7 +165,7 @@ void KlonTUIke_CursorRight(KlonTUIke_LVInterface* interface) {
 	}
 }
 
-void KlonTUIke_CursorAction(KlonTUIke_LVInterface* interface) {
+void KTUI_CursorAction(KTUI_LVInterface* interface) {
 	uint8_t tabIndexTo;
 	uint8_t tabIndexFrom, tabPosFrom;
 	uint8_t founIndexTo, founIndexFrom;
@@ -184,17 +184,17 @@ void KlonTUIke_CursorAction(KlonTUIke_LVInterface* interface) {
 				if (interface->selection < 140) {
 					tabIndexFrom = interface->selection / 20;
 					tabPosFrom = interface->selection % 20 - 1;
-					if (KlonTUIke_TableauToTableau(interface->table,
+					if (KTUI_TableauToTableau(interface->table,
 							tabIndexFrom, tabPosFrom, tabIndexTo)) {
-						if (KlonTUIke_GetTableauSize(interface->table, tabIndexTo) == 1) {
+						if (KTUI_GetTableauSize(interface->table, tabIndexTo) == 1) {
 							interface->cursor = tabIndexTo * 20 + 1;
 						}
 						/* TODO Undo */
 					}
 				/* Open reserved */
 				} else if (interface->selection == 141) {
-					if (KlonTUIke_ReserveToTableau(interface->table, tabIndexTo)) {
-						if (KlonTUIke_GetTableauSize(interface->table, tabIndexTo) == 1) {
+					if (KTUI_ReserveToTableau(interface->table, tabIndexTo)) {
+						if (KTUI_GetTableauSize(interface->table, tabIndexTo) == 1) {
 							interface->cursor = tabIndexTo * 20 + 1;
 						}
 						/* TODO Undo */
@@ -203,9 +203,9 @@ void KlonTUIke_CursorAction(KlonTUIke_LVInterface* interface) {
 				} else if (interface->selection >= 143
 						&& interface->selection <= 146) {
 					founIndexFrom = interface->selection - 143;
-					if (KlonTUIke_FoundationToTableau(interface->table,
+					if (KTUI_FoundationToTableau(interface->table,
 							founIndexFrom, tabIndexTo)) {
-						if (KlonTUIke_GetTableauSize(interface->table, tabIndexTo) == 1) {
+						if (KTUI_GetTableauSize(interface->table, tabIndexTo) == 1) {
 							interface->cursor = tabIndexTo * 20 + 1;
 						}
 						/* TODO Undo */
@@ -218,23 +218,23 @@ void KlonTUIke_CursorAction(KlonTUIke_LVInterface* interface) {
 				if (interface->selection < 140) {
 					tabIndexFrom = interface->selection / 20;
 					tabPosFrom = interface->selection % 20 - 1;
-					if (KlonTUIke_GetTableauSize(interface->table, tabIndexFrom) - 1
+					if (KTUI_GetTableauSize(interface->table, tabIndexFrom) - 1
 							== tabPosFrom) {
-						if (KlonTUIke_TableauToFoundation(interface->table,
+						if (KTUI_TableauToFoundation(interface->table,
 								tabIndexFrom, founIndexTo)) {
 							/* TODO Undo */
 						}
 					}
 				/* Open reserved */
 				} else if (interface->selection == 141) {
-					if (KlonTUIke_ReserveToFoundation(interface->table, founIndexTo)) {
+					if (KTUI_ReserveToFoundation(interface->table, founIndexTo)) {
 						/* TODO Undo */
 					}
 				/* Foundation */
 				} else if (interface->selection >= 143
 						&& interface->selection <= 146) {
 					founIndexFrom = interface->selection - 143;
-					if (KlonTUIke_FoundationToFoundation(interface->table,
+					if (KTUI_FoundationToFoundation(interface->table,
 							founIndexFrom, founIndexTo)) {
 						/* TODO Undo */
 					}
@@ -242,7 +242,7 @@ void KlonTUIke_CursorAction(KlonTUIke_LVInterface* interface) {
 
 			}
 		}
-		KlonTUIke_CancelSelection(interface);
+		KTUI_CancelSelection(interface);
 	} else { /* Card isn't selected */
 		/* Tableau */
 		if (interface->cursor < 140) {
@@ -251,27 +251,27 @@ void KlonTUIke_CursorAction(KlonTUIke_LVInterface* interface) {
 			}
 		/* Reserved */
 		} else if (interface->cursor == 140) {
-			KlonTUIke_TurnReserve(interface->table);
+			KTUI_TurnReserve(interface->table);
 		/* Open reserved */
 		} else if (interface->cursor == 141 &&
-				KlonTUIke_GetOpenReserve(interface->table) < 52) {
+				KTUI_GetOpenReserve(interface->table) < 52) {
 			interface->selection = 141;
 		/* Foundation */
 		} else if (interface->cursor >= 143 && interface->cursor <= 146) {
-			if (KlonTUIke_GetFoundation(interface->table, interface->cursor-143) < 52) {
+			if (KTUI_GetFoundation(interface->table, interface->cursor-143) < 52) {
 				interface->selection = interface->cursor;
 			}
 		}
 	}
 }
 
-void KlonTUIke_CancelSelection(KlonTUIke_LVInterface* interface) {
+void KTUI_CancelSelection(KTUI_LVInterface* interface) {
 	if (interface != NULL) {
 		interface->selection = 0;
 	}
 }
 
-bool KlonTUIke_SetCursor(KlonTUIke_LVInterface* interface, uint8_t cursor) {
+bool KTUI_SetCursor(KTUI_LVInterface* interface, uint8_t cursor) {
 	uint8_t tabPos, tabIndex;
 
 	if (NULL == interface) {
@@ -281,9 +281,9 @@ bool KlonTUIke_SetCursor(KlonTUIke_LVInterface* interface, uint8_t cursor) {
 	if (cursor < 140) {
 		tabIndex = cursor / 20;
 		tabPos = cursor % 20;
-		if (tabPos <= KlonTUIke_GetTableauSize(interface->table, tabIndex)
-				&& (KlonTUIke_GetTableauSize(interface->table, tabIndex) == 0
-						|| tabPos - 1 >= KlonTUIke_GetTableauFirstVis(interface->table, tabIndex))) {
+		if (tabPos <= KTUI_GetTableauSize(interface->table, tabIndex)
+				&& (KTUI_GetTableauSize(interface->table, tabIndex) == 0
+						|| tabPos - 1 >= KTUI_GetTableauFirstVis(interface->table, tabIndex))) {
 			interface->cursor = cursor;
 		}
 	} else if (cursor >= 140 && cursor <= 146 && cursor != 142) {
@@ -297,7 +297,7 @@ bool KlonTUIke_SetCursor(KlonTUIke_LVInterface* interface, uint8_t cursor) {
 	}
 }
 
-uint8_t KlonTUIke_GetCursor(KlonTUIke_LVInterface* interface) {
+uint8_t KTUI_GetCursor(KTUI_LVInterface* interface) {
 	if (interface != NULL) {
 		return interface->cursor;
 	} else {
@@ -305,7 +305,7 @@ uint8_t KlonTUIke_GetCursor(KlonTUIke_LVInterface* interface) {
 	}
 }
 
-uint8_t KlonTUIke_GetSelection(KlonTUIke_LVInterface* interface) {
+uint8_t KTUI_GetSelection(KTUI_LVInterface* interface) {
 	if (interface != NULL) {
 		return interface->selection;
 	} else {
@@ -313,7 +313,7 @@ uint8_t KlonTUIke_GetSelection(KlonTUIke_LVInterface* interface) {
 	}
 }
 
-KlonTUIke_Table* KlonTUIke_GetTable(KlonTUIke_LVInterface* interface) {
+KTUI_Table* KTUI_GetTable(KTUI_LVInterface* interface) {
 	if (interface != NULL) {
 		return interface->table;
 	} else {
@@ -321,21 +321,21 @@ KlonTUIke_Table* KlonTUIke_GetTable(KlonTUIke_LVInterface* interface) {
 	}
 }
 
-static void setCursorToTableau(KlonTUIke_LVInterface* interface,
+static void setCursorToTableau(KTUI_LVInterface* interface,
 		uint8_t nextTabIndex) {
 	uint8_t nextTabPos;
-	KlonTUIke_Table* table = interface->table;
+	KTUI_Table* table = interface->table;
 
 	if (NULL == interface) {
 		return;
 	}
 
-	if (KlonTUIke_GetTableauSize(table, nextTabIndex) > 0) {
+	if (KTUI_GetTableauSize(table, nextTabIndex) > 0) {
 		nextTabPos = interface->cursor % 20;
-		if (nextTabPos < KlonTUIke_GetTableauFirstVis(table, nextTabIndex) + 1) {
-			nextTabPos = KlonTUIke_GetTableauFirstVis(table, nextTabIndex) + 1;
-		} else if (nextTabPos > KlonTUIke_GetTableauSize(table, nextTabIndex)) {
-			nextTabPos = KlonTUIke_GetTableauSize(table, nextTabIndex);
+		if (nextTabPos < KTUI_GetTableauFirstVis(table, nextTabIndex) + 1) {
+			nextTabPos = KTUI_GetTableauFirstVis(table, nextTabIndex) + 1;
+		} else if (nextTabPos > KTUI_GetTableauSize(table, nextTabIndex)) {
+			nextTabPos = KTUI_GetTableauSize(table, nextTabIndex);
 		}
 	} else {
 		nextTabPos = 0;
