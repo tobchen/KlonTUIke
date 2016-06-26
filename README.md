@@ -36,10 +36,11 @@ Move the cursor using the arrow keys and use `enter` to select or place cards or
 turning the reserve stack. To append selected cards to a tableau it is not
 required to actually have the cursor on the last card of said tableau.
 
-Mouse controls are planned for future releases. As well as an undo function.
+You can also use your mouse for selecting and playing cards or turning the
+reserve stack. But bear in mind that mouse support is very rudimentary and
+KlonTUIke is still best played with keyboard.
 
 ## Todo
 
-* Mouse controls
 * Undo
 * Tests

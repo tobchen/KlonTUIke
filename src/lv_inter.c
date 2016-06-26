@@ -281,9 +281,9 @@ bool KTUI_SetCursor(KTUI_LVInterface* interface, uint8_t cursor) {
 	if (cursor < 140) {
 		tabIndex = cursor / 20;
 		tabPos = cursor % 20;
-		if (tabPos <= KTUI_GetTableauSize(interface->table, tabIndex)
-				&& (KTUI_GetTableauSize(interface->table, tabIndex) == 0
-						|| tabPos - 1 >= KTUI_GetTableauFirstVis(interface->table, tabIndex))) {
+		if ((tabPos == 0 && KTUI_GetTableauSize(interface->table, tabIndex))
+				|| (tabPos-1 >= KTUI_GetTableauFirstVis(interface->table, tabIndex)
+				&& tabPos <= KTUI_GetTableauSize(interface->table, tabIndex))) {
 			interface->cursor = cursor;
 		}
 	} else if (cursor >= 140 && cursor <= 146 && cursor != 142) {

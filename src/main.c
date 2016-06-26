@@ -29,6 +29,7 @@ int main(void) {
 	KTUI_LVInterface* interface;
 	int input;
 	time_t start, end;
+	MEVENT mouseEvent;
 
 	/* ncurses man said to set the locale so why not? */
 	setlocale(LC_ALL, "");
@@ -49,6 +50,9 @@ int main(void) {
 		KTUI_DestroyInterface(interface);
 		return EXIT_FAILURE;
 	}
+
+	/* Mouse */
+	mousemask(BUTTON1_CLICKED, NULL);
 
 	/* Main loop */
 	currentState = START;
@@ -78,6 +82,17 @@ int main(void) {
 				KTUI_CursorAction(interface);
 			} else if (input == KEY_BACKSPACE) {
 				KTUI_CancelSelection(interface);
+			} else if (input == KEY_MOUSE) {
+				if (getmouse(&mouseEvent) == OK
+						&& mouseEvent.bstate == BUTTON1_CLICKED) {
+					if (KTUI_SetCursor(interface,
+							KTUI_MouseToCursor(KTUI_GetTable(interface),
+									mouseEvent.y, mouseEvent.x))) {
+						KTUI_CursorAction(interface);
+					} else {
+						KTUI_CancelSelection(interface);
+					}
+				}
 			}
 		}
 

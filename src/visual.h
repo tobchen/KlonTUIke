@@ -9,6 +9,7 @@
 #define KTUI_SRC_VISUAL_H
 
 #include <time.h>
+#include <stdint.h>
 
 #include "lv_inter.h"
 
@@ -23,5 +24,7 @@ void KTUI_DrawStart();
 void KTUI_DrawWon(time_t playtime);
 
 int KTUI_RequestInput();
+
+uint8_t KTUI_MouseToCursor(KTUI_Table* table, int y, int x);
 
 #endif /* KTUI_SRC_VISUAL_H */

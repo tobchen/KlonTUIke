@@ -15,7 +15,6 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdint.h>
 
 #ifndef KTUI_UNICODE
 	#include <ncurses.h>
@@ -24,6 +23,7 @@
 #endif
 
 static WINDOW* window;
+static int posX, posY;
 
 static void drawCard(int y, int x, uint8_t card, bool selected);
 static void drawBack(int y, int x);
@@ -58,7 +58,9 @@ int KTUI_InitVisual() {
 	init_pair(KTUI_COLOR_WHITE, COLOR_WHITE, COLOR_BLACK);
 
 	/* Create window */
-	window = newwin(21, 27, (LINES - 21) / 2, (COLS - 27) / 2);
+	posX = (COLS - 27) / 2;
+	posY = (LINES - 21) / 2;
+	window = newwin(21, 27, posY, posX);
 	if (NULL == window) {
 		endwin();
 		return -1;
@@ -209,6 +211,28 @@ void KTUI_DrawWon(time_t playtime) {
 
 int KTUI_RequestInput() {
 	return wgetch(window);
+}
+
+uint8_t KTUI_MouseToCursor(KTUI_Table* table, int y, int x) {
+	uint8_t cardX;
+
+	y -= posY;
+	x -= posX;
+	cardX = x / 4;
+	if (NULL == table || cardX >= 7 || x % 4 == 3) {
+		return 150;
+	}
+	if (y == 0 && cardX != 2) {
+		return 140 + cardX;
+	} else if (y >= 2) {
+		if (KTUI_GetTableauSize(table, cardX) == 0) {
+			return cardX * 20;
+		} else {
+			return cardX * 20 + y - 1;
+		}
+	}
+
+	return 150;
 }
 
 #ifndef KTUI_UNICODE
