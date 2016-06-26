@@ -1,13 +1,13 @@
 # KlonTUIke (Solitaire)
 
-*KlonTUIke* is a Klondike (solitaire) version to be played in a terminal.
+KlonTUIke is a Klondike (solitaire) version to be played in a terminal.
 
 ## Compile
 
 ### Linux
 
-To compile *KlonTUIke* on Linux you need *cmake* and *ncurses*, for the Unicode
-version (that has card symbols instead of ASCII initials) you need *ncursesw*.
+To compile KlonTUIke on Linux you need cmake and ncurses (or even better
+ncursesw for Unicode card suits).
 
 In the project's root type:
 ```
@@ -16,17 +16,16 @@ cd build
 cmake -G "Unix Makefiles" ..
 make
 ```
-You can now play *KlonTUIke* by running *ktui* in the *build* directory.
+You can now play KlonTUIke by running ktui in the build directory.
 
-To compile Unicode *KlonTUIke* type in additionally or alternatively
-`make ktui_uni` which will create *ktui_uni* in the *build* directory.
-
-Tested with *gcc 4.84*, *cmake 2.8.12.2*, *make 3.8*, *ncurses 5.9*,
-*ncursesw 5.9*.
+Tested with gcc 4.84, cmake 2.8.12.2, make 3.8 and ncursesw 5.9 on LinuxMint 17.
 
 ## Play
 
-*KlonTUIke* has the same
+To play KlonTUIke you need a terminal with at least 27 columns, 21 lines and
+color support.
+
+KlonTUIke has the same
 [rules](https://en.wikipedia.org/wiki/Klondike_(solitaire)#Rules) as any
 Klondike. This version turns one reserved card at a time.
 

@@ -5,11 +5,11 @@
  *      Author: tobchen
  */
 
-#define KLONTUIKE_COLOR_WHITE 5
-#define KLONTUIKE_COLOR_EMPTY 4
-#define KLONTUIKE_COLOR_BACK 3
-#define KLONTUIKE_COLOR_BLACK 2
-#define KLONTUIKE_COLOR_RED 1
+#define KTUI_COLOR_WHITE 5
+#define KTUI_COLOR_EMPTY 4
+#define KTUI_COLOR_BACK 3
+#define KTUI_COLOR_BLACK 2
+#define KTUI_COLOR_RED 1
 
 #include "visual.h"
 
@@ -17,7 +17,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#ifndef KLONTUIKE_UNICODE
+#ifndef KTUI_UNICODE
 	#include <ncurses.h>
 #else
 	#include <ncursesw/ncurses.h>
@@ -51,11 +51,11 @@ int KTUI_InitVisual() {
 		endwin();
 		return -1;
 	}
-	init_pair(KLONTUIKE_COLOR_RED, COLOR_RED, COLOR_WHITE);
-	init_pair(KLONTUIKE_COLOR_BLACK, COLOR_BLACK, COLOR_WHITE);
-	init_pair(KLONTUIKE_COLOR_BACK, COLOR_WHITE, COLOR_BLUE);
-	init_pair(KLONTUIKE_COLOR_EMPTY, COLOR_BLUE, COLOR_BLACK);
-	init_pair(KLONTUIKE_COLOR_WHITE, COLOR_WHITE, COLOR_BLACK);
+	init_pair(KTUI_COLOR_RED, COLOR_RED, COLOR_WHITE);
+	init_pair(KTUI_COLOR_BLACK, COLOR_BLACK, COLOR_WHITE);
+	init_pair(KTUI_COLOR_BACK, COLOR_WHITE, COLOR_BLUE);
+	init_pair(KTUI_COLOR_EMPTY, COLOR_BLUE, COLOR_BLACK);
+	init_pair(KTUI_COLOR_WHITE, COLOR_WHITE, COLOR_BLACK);
 
 	/* Create window */
 	window = newwin(21, 27, (LINES - 21) / 2, (COLS - 27) / 2);
@@ -78,9 +78,6 @@ void KTUI_DrawGame(KTUI_LVInterface* interface) {
 	uint8_t card;
 	uint8_t position;
 	KTUI_Table* table;
-	#ifdef KLONTUIKE_DEBUG
-		char cursorPos[8];
-	#endif
 
 	if (NULL == interface) {
 		return;
@@ -130,13 +127,6 @@ void KTUI_DrawGame(KTUI_LVInterface* interface) {
 		}
 	}
 
-	#ifdef KLONTUIKE_DEBUG
-		sprintf(cursorPos, "%u,%u", KTUI_GetCursor(table),
-				KTUI_GetSelection(table));
-		wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_WHITE));
-		mvwaddstr(window, 20, 0, cursorPos);
-	#endif
-
 	/* Selection */
 	position = KTUI_GetSelection(interface);
 	if (position > 0) {
@@ -178,12 +168,12 @@ void KTUI_DrawGame(KTUI_LVInterface* interface) {
 void KTUI_DrawStart() {
 	wclear(window);
 
-	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_WHITE));
+	wattrset(window, COLOR_PAIR(KTUI_COLOR_WHITE));
 	mvwaddstr(window, 6, 4, "KlonTUIke (Solitaire)");
-	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_EMPTY));
+	wattrset(window, COLOR_PAIR(KTUI_COLOR_EMPTY));
 	mvwaddstr(window, 7, 12, "by @TobchenDe");
 
-	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_WHITE));
+	wattrset(window, COLOR_PAIR(KTUI_COLOR_WHITE));
 	mvwaddstr(window, 9, 0, "n - New game");
 	mvwaddstr(window, 10, 0, "q - Quit");
 
@@ -208,9 +198,9 @@ void KTUI_DrawWon(time_t playtime) {
 
 	wclear(window);
 
-	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_WHITE));
+	wattrset(window, COLOR_PAIR(KTUI_COLOR_WHITE));
 	mvwaddstr(window, 9, 9, "You won!");
-	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_EMPTY));
+	wattrset(window, COLOR_PAIR(KTUI_COLOR_EMPTY));
 	mvwaddstr(window, 10, playtimeX, playtimeText);
 
 	curs_set(0);
@@ -221,16 +211,16 @@ int KTUI_RequestInput() {
 	return wgetch(window);
 }
 
-#ifndef KLONTUIKE_UNICODE
+#ifndef KTUI_UNICODE
 static void drawCard(int y, int x, uint8_t card, bool selected) {
 	int underlined = selected ? A_UNDERLINE : 0;
 	char text[3] = { ' ', ' ', ' ' };
 
 	/* Set color */
 	if (card < 26) {
-		wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_RED) | underlined);
+		wattrset(window, COLOR_PAIR(KTUI_COLOR_RED) | underlined);
 	} else {
-		wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_BLACK) | underlined);
+		wattrset(window, COLOR_PAIR(KTUI_COLOR_BLACK) | underlined);
 	}
 
 	/* Set suit */
@@ -281,9 +271,9 @@ static void drawCard(int y, int x, uint8_t card, bool selected) {
 
 	/* Set color */
 	if (card < 26) {
-		wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_RED) | underlined);
+		wattrset(window, COLOR_PAIR(KTUI_COLOR_RED) | underlined);
 	} else {
-		wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_BLACK) | underlined);
+		wattrset(window, COLOR_PAIR(KTUI_COLOR_BLACK) | underlined);
 	}
 
 	/* Set suit */
@@ -330,11 +320,11 @@ static void drawCard(int y, int x, uint8_t card, bool selected) {
 #endif
 
 static void drawBack(int y, int x) {
-	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_BACK));
+	wattrset(window, COLOR_PAIR(KTUI_COLOR_BACK));
 	mvwaddnstr(window, y, x, "   ", 3);
 }
 
 static void drawEmpty(int y, int x) {
-	wattrset(window, COLOR_PAIR(KLONTUIKE_COLOR_EMPTY));
+	wattrset(window, COLOR_PAIR(KTUI_COLOR_EMPTY));
 	mvwaddnstr(window, y, x, "[ ]", 3);
 }

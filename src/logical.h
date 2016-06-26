@@ -5,8 +5,8 @@
  *      Author: tobchen
  */
 
-#ifndef KLONTUIKE_SRC_LOGICAL_H
-#define KLONTUIKE_SRC_LOGICAL_H
+#ifndef KTUI_SRC_LOGICAL_H
+#define KTUI_SRC_LOGICAL_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -46,4 +46,4 @@ void KTUI_GetCardInfo(uint8_t card, uint8_t* suit, uint8_t* numeral);
 
 bool KTUI_HasWon(KTUI_Table* table);
 
-#endif /* KLONTUIKE_SRC_LOGICAL_H */
+#endif /* KTUI_SRC_LOGICAL_H */

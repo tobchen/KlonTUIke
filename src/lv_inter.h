@@ -5,8 +5,8 @@
  *      Author: tobchen
  */
 
-#ifndef KLONTUIKE_SRC_LV_INTERFACE_H
-#define KLONTUIKE_SRC_LV_INTERFACE_H
+#ifndef KTUI_SRC_LV_INTERFACE_H
+#define KTUI_SRC_LV_INTERFACE_H
 
 #include <stdbool.h>
 
@@ -35,4 +35,4 @@ uint8_t KTUI_GetSelection(KTUI_LVInterface* interface);
 
 KTUI_Table* KTUI_GetTable(KTUI_LVInterface* interface);
 
-#endif /* KLONTUIKE_SRC_LV_INTERFACE_H */
+#endif /* KTUI_SRC_LV_INTERFACE_H */

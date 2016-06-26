@@ -11,7 +11,7 @@
 #include <time.h>
 #include <locale.h>
 
-#ifndef KLONTUIKE_UNICODE
+#ifndef KTUI_UNICODE
 	#include <ncurses.h>
 #else
 	#include <ncursesw/ncurses.h>

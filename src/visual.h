@@ -5,8 +5,8 @@
  *      Author: tobchen
  */
 
-#ifndef KLONTUIKE_SRC_VISUAL_H
-#define KLONTUIKE_SRC_VISUAL_H
+#ifndef KTUI_SRC_VISUAL_H
+#define KTUI_SRC_VISUAL_H
 
 #include <time.h>
 
@@ -24,4 +24,4 @@ void KTUI_DrawWon(time_t playtime);
 
 int KTUI_RequestInput();
 
-#endif /* KLONTUIKE_SRC_VISUAL_H */
+#endif /* KTUI_SRC_VISUAL_H */
